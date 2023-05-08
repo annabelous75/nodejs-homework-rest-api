@@ -17,29 +17,29 @@ const getContactById = async (contactId) => {
 
 const removeContact = async (contactId) => {
   const contacts = await listContacts()
-  const contact = contacts.find(({ id }) => id.toString() === contactId)
-  if (!contact) return
-  const newContacts = contacts.filter(({ id }) => id.toString() !== contactId)
+  const contactIndex = contacts.findIndex(({ id }) => id.toString() === contactId)
+  if (contactIndex === -1) return
+  const [removedContact] = contacts.splice(contactIndex, 1)
   await fs.writeFile(
     contactsPath,
-    JSON.stringify(newContacts, null, 2),
+    JSON.stringify(contacts, null, 2),
     'utf8'
   )
-  return contact
+  return removedContact
 }
-
 const addContact = async (body) => {
   const contacts = await listContacts()
   const id = uuid()
   const newContact = { id, ...body }
-  const newContacts = [...contacts, newContact]
+  contacts.push(newContact)
   await fs.writeFile(
     contactsPath,
-    JSON.stringify(newContacts, null, 2),
+    JSON.stringify(contacts, null, 2),
     'utf8'
   )
   return newContact
 }
+
 
 const updateContact = async (contactId, body) => {
   const contacts = await listContacts()
