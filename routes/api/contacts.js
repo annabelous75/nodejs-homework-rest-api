@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const Contacts = require("../../models/contacts");
+const contactsmodels = require("../../models/contacts");
 const validate = require("./validation");
 
 router.get("/", async (req, res, next) => {
   try {
-    const contacts = await Contacts.listContacts();
+    const contacts = await contactsmodels.listContacts();
     return res.json({
       status: "Success",
       code: 200,
@@ -20,7 +20,7 @@ router.get("/", async (req, res, next) => {
 
 router.get("/:contactId", async (req, res, next) => {
   try {
-    const contact = await Contacts.getContactById(req.params.contactId);
+    const contact = await contactsmodels.getContactById(req.params.contactId);
 
     if (contact) {
       return res.json({
@@ -44,7 +44,7 @@ router.get("/:contactId", async (req, res, next) => {
 
 router.post("/", validate.createContact, async (req, res, next) => {
   try {
-    const contact = await Contacts.addContact(req.body);
+    const contact = await contactsmodels.addContact(req.body);
     return res.status(201).json({
       status: "Success",
       code: 201,
@@ -60,7 +60,7 @@ router.post("/", validate.createContact, async (req, res, next) => {
 
 router.delete("/:contactId", async (req, res, next) => {
   try {
-    const contact = await Contacts.removeContact(req.params.contactId);
+    const contact = await contactsmodels.removeContact(req.params.contactId);
 
     if (contact) {
       return res.json({
@@ -82,7 +82,7 @@ router.delete("/:contactId", async (req, res, next) => {
 
 router.patch("/:contactId", validate.updateContact, async (req, res, next) => {
   try {
-    const contact = await Contacts.updateContact(
+    const contact = await contactsmodels.updateContact(
       req.params.contactId,
       req.body
     );
