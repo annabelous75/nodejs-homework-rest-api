@@ -21,11 +21,15 @@ const getContactById = async (contactId, userId) => {
 };
 
 const removeContact = async (contactId, userId) => {
-  const result = await contactmodel.findByIdAndRemove({
+  const contact = await contactmodel.findOne({
     _id: contactId,
     owner: userId,
   });
-  return result;
+  if (!contact) {
+    throw new Error('Contact not found or unauthorized');
+  }
+  await contactmodel.findByIdAndRemove(contactId);
+  return contact;
 };
 
 const addContact = async body => {
