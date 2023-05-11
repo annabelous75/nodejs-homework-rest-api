@@ -17,8 +17,13 @@ const getContactById = async (contactId, userId) => {
     select: 'name email subscription -_id',
   });
 
+  if (!result) {
+    throw new Error('Contact not found or does not belong to user');
+  }
+
   return result;
 };
+
 
 const removeContact = async (contactId, userId) => {
   const contact = await contactmodel.findOne({
@@ -38,12 +43,15 @@ const addContact = async body => {
 };
 
 const updateContact = async (contactId, body, userId) => {
-  const result = await contactmodel.findByIdAndUpdate(
-    { _id: contactId, owner: userId },
-    { ...body },
-    { new: true },
-  );
-  return result;
+const result = await contactmodel.findOneAndUpdate(
+{ _id: contactId, owner: userId },
+{ ...body },
+{ new: true }
+);
+if (!result) {
+throw new Error('Contact not found');
+}
+return result;
 };
 
 module.exports = {
