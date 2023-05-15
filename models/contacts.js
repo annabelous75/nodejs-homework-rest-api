@@ -1,63 +1,36 @@
-const contactmodel = require('./schemas/contact');
+const { Schema, model } = require("mongoose");
 
-const listContacts = async userId => {
-  const results = await contactmodel.find({ owner: userId }).populate({
-    path: 'owner',
-    select: 'name email subscription -_id',
-  });
-  return results;
-};
+const { handleMongooseError } = require("../helpers");
 
-const getContactById = async (contactId, userId) => {
-  const result = await contactmodel.findOne({
-    _id: contactId,
-    owner: userId,
-  }).populate({
-    path: 'owner',
-    select: 'name email subscription -_id',
-  });
-
-  if (!result) {
-    throw new Error('Contact not found or does not belong to user');
-  }
-
-  return result;
-};
-
-
-const removeContact = async (contactId, userId) => {
-  const contact = await contactmodel.findOne({
-    _id: contactId,
-    owner: userId,
-  });
-  if (!contact) {
-    throw new Error('Contact not found or unauthorized');
-  }
-  await contactmodel.findByIdAndRemove(contactId);
-  return contact;
-};
-
-const addContact = async body => {
-  const result = await contactmodel.create(body);
-  return result;
-};
-
-const updateContact = async (contactId, body, userId) => {
-const result = await contactmodel.findOneAndUpdate(
-{ _id: contactId, owner: userId },
-{ ...body },
-{ new: true }
+const contactSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Set name for contact"],
+      unique: true,
+    },
+    email: {
+      type: String,
+    },
+    phone: {
+      type: String,
+    },
+    favorite: {
+      type: Boolean,
+      default: false,
+    },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+    },
+  },
+  { versionKey: false }
 );
-if (!result) {
-throw new Error('Contact not found');
-}
-return result;
-};
+
+contactSchema.post("save", handleMongooseError);
+
+const Contact = model("contact", contactSchema);
 
 module.exports = {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
+  Contact,
 };

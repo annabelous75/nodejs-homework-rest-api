@@ -1,25 +1,35 @@
-const User = require('./schemas/user');
+const { Schema, model } = require("mongoose");
 
-const findByEmail = async email => {
-  return await User.findOne({ email });
-};
+const { handleMongooseError } = require("../helpers");
 
-const findById = async id => {
-  return await User.findOne({ _id: id });
-};
+const userSchema = new Schema(
+  {
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+    },
+    subscription: {
+      type: String,
+      enum: ["starter", "pro", "business"],
+      default: "starter",
+    },
+    token: {
+      type: String,
+      default: null,
+    },
+  },
+  { versionKey: false, timestamps: true }
+);
 
-const create = async ({ name, email, password, subscription }) => {
-  const user = new User({ name, email, password, subscription });
-  return await user.save();
-};
+userSchema.post("save", handleMongooseError);
 
-const updateToken = async (id, token) => {
-  return await User.updateOne({ _id: id }, { token });
-};
+const User = model("user", userSchema);
 
 module.exports = {
-  findByEmail,
-  create,
-  findById,
-  updateToken,
+  User,
 };
